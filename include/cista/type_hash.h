@@ -109,7 +109,7 @@ inline std::string_view nameof_type_impl() noexcept {
           "inline std::string_view nameof::detail::nameof_type_impl() [with "
           "T = nameof::detail::identity<") -
       1;
-  inline auto suffix =
+  constexpr auto suffix =
       sizeof(">; std::string_view = std::basic_string_view<char>]") - 1;
 #elif defined(_MSC_VER)
   std::string_view name{__FUNCSIG__};
