@@ -96,15 +96,15 @@ template <typename T>
 inline std::string_view nameof_type_impl() noexcept {
 #if defined(__clang__)
   std::string_view name{__PRETTY_FUNCTION__};
-  inline auto prefix =
+  constexpr auto prefix =
       sizeof(
           "std::string_view nameof::detail::nameof_type_impl() [T = "
           "nameof::detail::identity<") -
       1;
-  inline auto suffix = sizeof(">]") - 1;
+  constexpr auto suffix = sizeof(">]") - 1;
 #elif defined(__GNUC__)
   std::string_view name{__PRETTY_FUNCTION__};
-  inline auto prefix =
+  constexpr auto prefix =
       sizeof(
           "inline std::string_view nameof::detail::nameof_type_impl() [with "
           "T = nameof::detail::identity<") -
@@ -156,14 +156,14 @@ inline std::string_view nameof_enum_impl() noexcept {
   static_assert(std::is_enum_v<decltype(V)>);
 #if defined(__clang__)
   std::string_view name{__PRETTY_FUNCTION__};
-  inline auto suffix = sizeof("]") - 1;
+  constexpr auto suffix = sizeof("]") - 1;
 #elif defined(__GNUC__) && __GNUC__ >= 9
   std::string_view name{__PRETTY_FUNCTION__};
-  inline auto suffix =
+  constexpr auto suffix =
       sizeof("; std::string_view = std::basic_string_view<char>]") - 1;
 #elif defined(_MSC_VER)
   std::string_view name{__FUNCSIG__};
-  auto suffix = sizeof(">(void) noexcept") - 1;
+  constexpr auto suffix = sizeof(">(void) noexcept") - 1;
 #else
   return {};  // Unsupported compiler.
 #endif
@@ -190,10 +190,9 @@ template <typename E, int V>
 struct nameof_enum_impl_t final {
   inline std::string_view operator()(int value) const noexcept {
     static_assert(std::is_enum_v<E>);
-    if
-      inline(V > std::numeric_limits<std::underlying_type_t<E>>::max()) {
-        return {};  // Enum variable out of range.
-      }
+    if constexpr (V > std::numeric_limits<std::underlying_type_t<E>>::max()) {
+      return {};  // Enum variable out of range.
+    }
 
     switch (value - V) {
       case 0: return nameof_enum_impl<static_cast<E>(V)>();
