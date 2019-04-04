@@ -31,16 +31,18 @@ template <typename T>
 hash_t type_hash(T const& el, hash_t hash) {
 #pragma warning(push)
 #pragma warning(disable : 4307)  // overflow is desired behaviour in fnv1a_hash
-  constexpr auto const POINTER = fnv1a_hash("pointer");
-  constexpr auto const STRUCT = fnv1a_hash("struct");
+  auto const POINTER = fnv1a_hash("pointer");
+  auto const STRUCT = fnv1a_hash("struct");
 #pragma warning(pop)
 
   using Type = decay_t<T>;
   using DeRefType = std::remove_pointer_t<Type>;
   if constexpr (use_standard_hash<DeRefType>() && std::is_enum_v<DeRefType>) {
+    std::cout << "enum std: " << detail::nameof_enum<Type>() << "\n";
     return fnv1a_hash(detail::nameof_enum<Type>(), hash);
   } else if constexpr (use_standard_hash<DeRefType>() &&
                        !std::is_enum_v<DeRefType>) {
+    std::cout << "type stdc: " << detail::nameof_type<Type>() << "\n";
     return fnv1a_hash(detail::nameof_type<Type>(), hash);
   } else if constexpr (!std::is_scalar_v<Type>) {
     static_assert(std::is_aggregate_v<Type> &&
@@ -55,8 +57,10 @@ hash_t type_hash(T const& el, hash_t hash) {
     hash = hash_combine(hash, POINTER);
     return type_hash(typename std::remove_pointer_t<Type>{}, hash);
   } else if constexpr (std::is_enum_v<Type>) {
+    std::cout << "enum: " << detail::nameof_enum<Type>() << "\n";
     return fnv1a_hash(detail::nameof_enum<Type>(), hash);
   } else {
+    std::cout << "type: " << detail::nameof_type<Type>() << "\n";
     return fnv1a_hash(detail::nameof_type<Type>(), hash);
   }
 }

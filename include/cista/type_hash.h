@@ -25,17 +25,17 @@ struct identity final {
   using type = T;
 };
 
-constexpr bool is_name_char(char c) noexcept {
+inline bool is_name_char(char c) noexcept {
   return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') ||
          (c >= 'A' && c <= 'Z') || c == '_';
 }
 
-constexpr bool is_bracket_char(char c) noexcept {
+inline bool is_bracket_char(char c) noexcept {
   return c == ')' || c == '}' || c == '>' || c == '(' || c == '{' || c == '<';
 }
 
-constexpr std::string_view pretty_name(std::string_view name,
-                                       bool with_suffix) noexcept {
+inline std::string_view pretty_name(std::string_view name,
+                                    bool with_suffix) noexcept {
   for (std::size_t i = name.size(), h = 0, s = 0; i > 0; --i) {
     if (h == 0 && !is_name_char(name[i - 1]) && !is_bracket_char(name[i - 1])) {
       ++s;
@@ -93,23 +93,23 @@ constexpr std::string_view pretty_name(std::string_view name,
 }
 
 template <typename T>
-constexpr std::string_view nameof_type_impl() noexcept {
+inline std::string_view nameof_type_impl() noexcept {
 #if defined(__clang__)
   std::string_view name{__PRETTY_FUNCTION__};
-  constexpr auto prefix =
+  inline auto prefix =
       sizeof(
           "std::string_view nameof::detail::nameof_type_impl() [T = "
           "nameof::detail::identity<") -
       1;
-  constexpr auto suffix = sizeof(">]") - 1;
+  inline auto suffix = sizeof(">]") - 1;
 #elif defined(__GNUC__)
   std::string_view name{__PRETTY_FUNCTION__};
-  constexpr auto prefix =
+  inline auto prefix =
       sizeof(
-          "constexpr std::string_view nameof::detail::nameof_type_impl() [with "
+          "inline std::string_view nameof::detail::nameof_type_impl() [with "
           "T = nameof::detail::identity<") -
       1;
-  constexpr auto suffix =
+  inline auto suffix =
       sizeof(">; std::string_view = std::basic_string_view<char>]") - 1;
 #elif defined(_MSC_VER)
   std::string_view name{__FUNCSIG__};
@@ -119,7 +119,7 @@ constexpr std::string_view nameof_type_impl() noexcept {
           "__cdecl nameof::detail::nameof_type_impl<struct "
           "nameof::detail::identity<") -
       1;
-  constexpr auto suffix = sizeof(">>(void) noexcept") - 1;
+  auto suffix = sizeof(">>(void) noexcept") - 1;
 #else
   return {};  // Unsupported compiler.
 #endif
@@ -146,23 +146,24 @@ constexpr std::string_view nameof_type_impl() noexcept {
     name.remove_suffix(1);
   }
 
+  std::cout << name << "\n";
   return name;
 #endif
 }
 
 template <auto V>
-constexpr std::string_view nameof_enum_impl() noexcept {
+inline std::string_view nameof_enum_impl() noexcept {
   static_assert(std::is_enum_v<decltype(V)>);
 #if defined(__clang__)
   std::string_view name{__PRETTY_FUNCTION__};
-  constexpr auto suffix = sizeof("]") - 1;
+  inline auto suffix = sizeof("]") - 1;
 #elif defined(__GNUC__) && __GNUC__ >= 9
   std::string_view name{__PRETTY_FUNCTION__};
-  constexpr auto suffix =
+  inline auto suffix =
       sizeof("; std::string_view = std::basic_string_view<char>]") - 1;
 #elif defined(_MSC_VER)
   std::string_view name{__FUNCSIG__};
-  constexpr auto suffix = sizeof(">(void) noexcept") - 1;
+  auto suffix = sizeof(">(void) noexcept") - 1;
 #else
   return {};  // Unsupported compiler.
 #endif
@@ -187,11 +188,12 @@ constexpr std::string_view nameof_enum_impl() noexcept {
 
 template <typename E, int V>
 struct nameof_enum_impl_t final {
-  constexpr std::string_view operator()(int value) const noexcept {
+  inline std::string_view operator()(int value) const noexcept {
     static_assert(std::is_enum_v<E>);
-    if constexpr (V > std::numeric_limits<std::underlying_type_t<E>>::max()) {
-      return {};  // Enum variable out of range.
-    }
+    if
+      inline(V > std::numeric_limits<std::underlying_type_t<E>>::max()) {
+        return {};  // Enum variable out of range.
+      }
 
     switch (value - V) {
       case 0: return nameof_enum_impl<static_cast<E>(V)>();
@@ -209,7 +211,7 @@ struct nameof_enum_impl_t final {
 
 template <typename E>
 struct nameof_enum_impl_t<E, CISTA_NAMEOF_ENUM_MAX_SEARCH_DEPTH> final {
-  constexpr std::string_view operator()(int) const noexcept {
+  inline std::string_view operator()(int) const noexcept {
     static_assert(std::is_enum_v<E>);
     return {};  // Enum variable out of range
                 // CISTA_NAMEOF_ENUM_MAX_SEARCH_DEPTH.
@@ -217,12 +219,12 @@ struct nameof_enum_impl_t<E, CISTA_NAMEOF_ENUM_MAX_SEARCH_DEPTH> final {
 };
 
 template <typename T, typename = std::enable_if_t<!std::is_reference_v<T>>>
-constexpr std::string_view nameof_impl(std::string_view name,
-                                       bool with_suffix) noexcept {
+inline std::string_view nameof_impl(std::string_view name,
+                                    bool with_suffix) noexcept {
   return pretty_name(name, with_suffix);
 }
 
-constexpr std::string_view nameof_raw_impl(std::string_view name) noexcept {
+inline std::string_view nameof_raw_impl(std::string_view name) noexcept {
   return name;
 }
 
@@ -230,7 +232,7 @@ constexpr std::string_view nameof_raw_impl(std::string_view name) noexcept {
 // variable.
 template <typename T,
           typename = std::enable_if_t<std::is_enum_v<std::decay_t<T>>>>
-constexpr std::string_view nameof_enum(T value) noexcept {
+inline std::string_view nameof_enum(T value) noexcept {
   constexpr bool s = std::is_signed_v<std::underlying_type_t<std::decay_t<T>>>;
   constexpr int min = s ? -CISTA_NAMEOF_ENUM_MAX_SEARCH_DEPTH : 0;
   return detail::nameof_enum_impl_t<std::decay_t<T>, min>{}(
@@ -241,13 +243,13 @@ constexpr std::string_view nameof_enum(T value) noexcept {
 // static storage enum variable.
 template <auto V, typename = std::enable_if_t<
                       std::is_enum_v<std::decay_t<decltype(V)>>>>
-constexpr std::string_view nameof_enum() noexcept {
+inline std::string_view nameof_enum() noexcept {
   return detail::nameof_enum_impl<V>();
 }
 
 // nameof_type used to obtain the string name of type.
 template <typename T>
-constexpr std::string_view nameof_type() noexcept {
+inline std::string_view nameof_type() noexcept {
   return detail::nameof_type_impl<detail::identity<T>>();
 }
 
@@ -255,7 +257,7 @@ constexpr std::string_view nameof_type() noexcept {
 
 // See http://www.isthe.com/chongo/tech/comp/fnv/#FNV-param
 template <typename T>
-constexpr hash_t hash_combine(hash_t const hash, T const& val) {
+inline hash_t hash_combine(hash_t const hash, T const& val) {
 #pragma warning(push)
 #pragma warning(disable : 4307)
   constexpr hash_t prime = 1099511628211ull;
@@ -263,11 +265,11 @@ constexpr hash_t hash_combine(hash_t const hash, T const& val) {
 #pragma warning(pop)
 }
 
-constexpr hash_t fnv1a_hash(std::string_view s, hash_t hash) noexcept {
+inline hash_t fnv1a_hash(std::string_view s, hash_t hash) noexcept {
   return s.empty() ? hash : fnv1a_hash(s.substr(1), hash_combine(hash, s[0]));
 }
 
-constexpr hash_t fnv1a_hash(std::string_view s = "") {
+inline hash_t fnv1a_hash(std::string_view s = "") {
   constexpr hash_t basis = 14695981039346656037ull;
   return fnv1a_hash(s, basis);
 }
