@@ -87,7 +87,7 @@ TEST_CASE("graph offset serialize file") {
   {
     graph g;
 
-    CHECK(18214491280555180016ull == cista::type_hash(g));
+    CHECK(14028189794292163204ULL == cista::type_hash(g));
 
     auto const n1 = g.make_node(data::string{"NODE A"});
     auto const n2 = g.make_node(data::string{"NODE B"});

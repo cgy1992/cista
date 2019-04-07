@@ -1,0 +1,3 @@
+[submodule "lib/ctti"]
+	path = lib/ctti
+	url = https://github.com/felixguendling/ctti.git

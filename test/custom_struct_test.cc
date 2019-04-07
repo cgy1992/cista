@@ -21,7 +21,7 @@ void serialize(Ctx&, serialize_me const*, offset_t const) {}
 void unchecked_deserialize(deserialization_context const&, serialize_me*) {}
 
 hash_t type_hash(serialize_me const&, hash_t const hash) {
-  return cista::hash_combine(hash, 23802384234810);
+  return cista::fnv1a_hash_combine(hash, 23802384234810);
 }
 
 TEST_CASE("custom struct test") {

@@ -27,6 +27,7 @@ before_install:
       gem install coveralls-lcov
     fi
 script:
+  - git submodule update --init --recursive
   - mkdir build && cd build
   - cmake -GNinja -DCISTA_COVERAGE=$COVERAGE -DCMAKE_BUILD_TYPE=$BUILD_TYPE ..
 # - ninja cista-format-check

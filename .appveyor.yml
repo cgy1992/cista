@@ -15,6 +15,7 @@ install:
   - cmake --version
   - ninja --version
 build_script:
+  - git submodule update --init --recursive
   - mkdir build && cd build
   - set CXXFLAGS="/std:c++latest"
   - cmake -GNinja -DCMAKE_BUILD_TYPE=%CONFIGURATION% ..
