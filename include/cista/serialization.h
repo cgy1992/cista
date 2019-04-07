@@ -44,10 +44,10 @@ hash_t type_hash(T const& el, hash_t hash) {
   using Type = decay_t<T>;
   using DeRefType = std::remove_pointer_t<Type>;
   if constexpr (use_standard_hash<DeRefType>() && std::is_enum_v<DeRefType>) {
-    return fnv1a_hash_combine(hash, type_id<Type>().hash());
+    return fnv1a_hash_combine(hash, type_id<Type>().hash_dbg());
   } else if constexpr (use_standard_hash<DeRefType>() &&
                        !std::is_enum_v<DeRefType>) {
-    return fnv1a_hash_combine(hash, type_id<Type>().hash());
+    return fnv1a_hash_combine(hash, type_id<Type>().hash_dbg());
   } else if constexpr (!std::is_scalar_v<Type>) {
     static_assert(std::is_aggregate_v<Type> &&
                       std::is_standard_layout_v<Type> &&
@@ -60,9 +60,9 @@ hash_t type_hash(T const& el, hash_t hash) {
   } else if constexpr (std::is_pointer_v<Type>) {
     hash = fnv1a_hash_combine(hash, POINTER);
     return fnv1a_hash_combine(hash,
-                              type_id<std::remove_pointer_t<Type>>().hash());
+                              type_id<std::remove_pointer_t<Type>>().hash_dbg());
   } else {
-    return fnv1a_hash_combine(type_id<Type>().hash(), hash);
+    return fnv1a_hash_combine(type_id<Type>().hash_dbg(), hash);
   }
 }
 
