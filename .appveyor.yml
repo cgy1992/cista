@@ -1,4 +1,3 @@
-shallow_clone: true
 image: Visual Studio 2017
 configuration:
   - Debug
