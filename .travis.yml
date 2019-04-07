@@ -27,6 +27,7 @@ before_install:
       gem install coveralls-lcov
     fi
 install:
+  - cd %APPVEYOR_BUILD_FOLDER%
   - git submodule update --init --recursive
 script:
   - mkdir build && cd build
